@@ -1,0 +1,56 @@
+# Node.js with Angular
+
+# Build a Node.js project that uses Angular.
+# Add steps that analyze code, save build artifacts, deploy, and more:
+# https://docs.microsoft.com/azure/devops/pipelines/languages/javascript
+
+trigger:
+  # - master
+  - release/*
+
+pool:
+  vmImage: 'macOS-10.14' #'ubuntu-latest'
+
+variables:
+  patch: $[counter(format('{0}.{1}', variables['major'], variables['minor']), 0)]
+
+steps:
+  - task: NodeTool@0
+    displayName: 'Use Node >= >=12.18.0'
+    inputs:
+      versionSpec: '>=12.18.0'
+
+  - task: Npm@1
+    displayName: 'npm version -no git tag'
+    inputs:
+      command: custom
+      workingDir: '$(Build.SourcesDirectory)'
+      verbose: false
+      customCommand: 'run-script ci:set-version -- $(major).$(minor).$(patch)-ci'
+    continueOnError: true
+
+  - displayName: 'npm ci'
+    script: |
+      npm ci --no-audit --prefer-offline
+    inputs:
+      verbose: false
+
+  - script: |
+      npm run build
+    condition: and(succeeded(), eq(variables['Build.SourceBranch'], 'refs/heads/master'))
+    displayName: 'npm build'
+
+  - script: |
+      npm install -g firebase-tools
+      firebase deploy --token $(FIREBASE_TOKEN) --project $(FIREBASE_PROJECT) --only hosting --force
+    condition: and(succeeded(), startsWith(variables['Build.SourceBranch'], 'refs/heads/release/linkmate-'))
+    displayName: 'deploy app'
+
+  # - task: Npm@1
+  #   displayName: 'npm version -no git tag'
+  #   inputs:
+  #     command: custom
+  #     workingDir: '$(Build.SourcesDirectory)'
+  #     verbose: false
+  #     customCommand: 'run-script ci:version -- $(major).$(minor).$(patch)-ci'
+  #   continueOnError: true

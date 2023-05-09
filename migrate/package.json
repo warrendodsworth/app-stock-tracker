@@ -1,0 +1,13 @@
+{
+  "name": "migrate",
+  "version": "1.0.0",
+  "description": "",
+  "main": "main.js",
+  "scripts": {},
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "firebase-admin": "^11.5.0",
+    "luxon": "^3.3.0"
+  }
+}
