@@ -1,0 +1,10 @@
+{
+  "editorconfig": true,
+  "arrowParens": "avoid",
+  "tabWidth": 2,
+  "printWidth": 155,
+  "singleQuote": true,
+  "useTabs": false,
+  "trailingComma": "es5",
+  "endOfLine": "lf"
+}
